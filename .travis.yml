@@ -1,0 +1,15 @@
+sudo: false
+language: node_js
+node_js:
+  - '10'
+dist: trusty
+cache:
+  yarn: true
+  directories:
+    - node_modules
+    - __test__/mongo-bin
+script:
+  - yarn test --coverage
+  - yarn build
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

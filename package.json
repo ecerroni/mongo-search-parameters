@@ -1,0 +1,73 @@
+{
+  "name": "mongo-search-parameters",
+  "version": "0.0.0",
+  "description": "Easy find() search parameters",
+  "main": "build/index.js",
+  "files": [
+    "/build"
+  ],
+  "scripts": {
+    "build": "babel src -d build --ignore /*.test.js",
+    "test": "jest",
+    "prepare": "npm run build",
+    "test:clear-cache": "jest --clearCache",
+    "lint": "eslint .",
+    "clean": "rimraf dist",
+    "lint-fix": "eslint --fix .",
+    "prebuild": "npm run clean",
+    "prepublishOnly": "npm run prepare",
+    "preversion": "npm run prettify && npm run lint && npm test && npm run prepare",
+    "prettify": "prettier --write **/*.js",
+    "version": "standard-changelog && git add CHANGELOG.md",
+    "postpublish": "git push https://github.com/ecerroni/mongo-search-parameters.git master --follow-tags"
+  },
+  "author": "Enrico Cerroni",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ecerroni/mongo-search-parameters"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mongo",
+    "noSql",
+    "mongodb",
+    "mongoose",
+    "queries",
+    "search parameters"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-transform-regenerator": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.7.1",
+    "babel-preset-latest-node": "^3.2.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "husky": "^1.1.2",
+    "jest": "^24.8.0",
+    "lint-staged": "^7.3.0",
+    "mongodb-memory-server-core": "^5.2.3",
+    "mongoose": "^5.7.1",
+    "prettier": "^1.18.2",
+    "standard-changelog": "^2.0.1",
+    "waait": "^1.0.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  }
+}
