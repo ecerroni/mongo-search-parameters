@@ -47,9 +47,8 @@ const params = { // all fields are optional
   },
   sort: 'name:desc',
   limit: 10
-  lean: true,
 }
-// the above query will find all users which names contain (case insensitive) 'Test' and age is greater than 21, sort them by name from Z to A, limit them to just 10 rows if more are returned while applying lean() mongoose method
+// the above query will find all users which names contain (case insensitive) 'Test' and age is greater than 21, sort them by name from Z to A, limit them to just 10 rows if more are returned
 
 export default async () => {
     const categories = await applySearchParams(User, { ...params });
@@ -57,6 +56,11 @@ export default async () => {
 }
 
 ```
+
+All mongo and mongoose chain methods and options are still allowed.
+For example for:
+- mongoose you can do `await applySearchParams(User, { ...params }, { age: 1 }).lean()`
+- mongo you can do `await applySearchParams(User, { ...params }, { projection: { age: 1 } }).toArray()`
 
 ## Supported operators
 - [x] where | ne
