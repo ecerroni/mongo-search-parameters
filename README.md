@@ -29,7 +29,8 @@ yarn add mongo-search-parameters
 ```
 
 ## Demo
-https://codesandbox.io/s/mongo-search-parameters-u2q5i
+Mongoose: https://codesandbox.io/s/mongo-search-parameters-mongoose-u2q5i
+Apollo Graphql + Mongoose: https://codesandbox.io/s/mongo-search-params-apollo-i8hr5
 
 ## Usage
 
@@ -102,4 +103,5 @@ For example for:
 ## TODO
 - [x] Add mongodb client compatibility
 - [x] Add demo
+- [ ] Refine search and explain different behaviors
 - [ ] Use search indexes when available
