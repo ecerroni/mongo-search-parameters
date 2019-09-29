@@ -26,6 +26,16 @@ const operators = {
       name_containss: 'Lore'
     }
   },
+  matches: {
+    where: {
+      name_matches: 'lore ipsum'
+    }
+  },
+  matchess: {
+    where: {
+      name_matchess: 'Lore ipsum'
+    }
+  },
   gt: {
     where: {
       age_gt: 5
@@ -86,9 +96,9 @@ beforeAll(async () => {
   Test.insertMany([...docs])
 })
 
-beforeEach(async () => {})
+beforeEach(async () => { })
 
-afterEach(async () => {})
+afterEach(async () => { })
 
 afterAll(async () => {
   client.close()
@@ -110,14 +120,29 @@ test('It should apply containss modifier', async () => {
   }).toArray()
   expect(result).toHaveLength(1)
   expect(result[0].name).toBe('Lore')
-}),
-  test('It should apply contains modifier', async () => {
-    const result = await mapMongoOperators(Test, {
-      ...operators.contains
-    }).toArray()
-    expect(result).toHaveLength(2)
-    expect(result[0].name).toBe('lore')
-  })
+})
+
+test('It should apply matches modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matches }).toArray()
+  expect(result).toHaveLength(3)
+  expect(result[0].name).toBe('lore')
+  expect(result[1].name).toBe('ipsum')
+})
+
+test('It should apply matchess modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matchess }).toArray()
+  expect(result).toHaveLength(2)
+  expect(result[0].name).toBe('ipsum')
+  expect(result[1].name).toBe('Lore')
+})
+
+test('It should apply contains modifier', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.contains
+  }).toArray()
+  expect(result).toHaveLength(2)
+  expect(result[0].name).toBe('lore')
+})
 
 test('It should apply gt modifier', async () => {
   const result = await mapMongoOperators(Test, { ...operators.gt }).toArray()

@@ -23,6 +23,16 @@ const operators = {
       name_containss: 'Lore'
     }
   },
+  matches: {
+    where: {
+      name_matches: 'lore ipsum'
+    }
+  },
+  matchess: {
+    where: {
+      name_matchess: 'Lore ipsum'
+    }
+  },
   gt: {
     where: {
       age_gt: 5
@@ -76,9 +86,9 @@ beforeAll(async () => {
   await Test.insertMany([...docs])
 })
 
-beforeEach(async () => {})
+beforeEach(async () => { })
 
-afterEach(async () => {})
+afterEach(async () => { })
 
 afterAll(async () => {
   await mongoose.disconnect()
@@ -106,6 +116,22 @@ test('It should apply containss modifier', async () => {
     expect(result[0].name).toBe('lore')
     expect(result[0].constructor.name).toBe('model')
   })
+
+test('It should apply matches modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matches })
+  expect(result).toHaveLength(3)
+  expect(result[0].name).toBe('lore')
+  expect(result[1].name).toBe('ipsum')
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply matchess modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matchess })
+  expect(result).toHaveLength(2)
+  expect(result[0].name).toBe('ipsum')
+  expect(result[1].name).toBe('Lore')
+  expect(result[0].constructor.name).toBe('model')
+})
 
 test('It should apply gt modifier', async () => {
   const result = await mapMongoOperators(Test, { ...operators.gt })

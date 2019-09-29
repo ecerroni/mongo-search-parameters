@@ -11,19 +11,47 @@ const filterOperators = {
     return { [key]: { $in: [value] } }
   },
   contains: ({ key, value }) => {
-    const words = value.split(' ')
-    let params = {}
-    words.forEach(word => {
-      params = { ...params, [key]: { $regex: `${word}`, $options: 'i' } }
-    })
+    const params = {
+      [key]: {
+        $regex: `${value.trim().replace(/\s\s+/g, ' ')}`,
+        $options: 'i'
+      }
+    }
     return params
   },
   containss: ({ key, value }) => {
-    const words = value.split(' ')
-    let params = {}
-    words.forEach(word => {
-      params = { ...params, [key]: { $regex: `${word}` } }
-    })
+    const params = {
+      [key]: {
+        $regex: `${value.trim().replace(/\s\s+/g, ' ')}`
+      }
+    }
+    return params
+  },
+  matches: ({ key, value }) => {
+    const params = {
+      [key]: {
+        $regex: `${value
+          .trim()
+          .replace(/\s\s+/g, ' ')
+          .split(' ')
+          .map(p => `\\b${p}`)
+          .join('|')}`,
+        $options: 'i'
+      }
+    }
+    return params
+  },
+  matchess: ({ key, value }) => {
+    const params = {
+      [key]: {
+        $regex: `${value
+          .trim()
+          .replace(/\s\s+/g, ' ')
+          .split(' ')
+          .map(p => `\\b${p}`)
+          .join('|')}`
+      }
+    }
     return params
   }
 }

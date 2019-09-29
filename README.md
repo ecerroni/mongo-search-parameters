@@ -72,15 +72,23 @@ For example for:
 - [x] where | in
 - [x] where | contains
 - [x] where | containss
+- [x] where | matches
+- [x] where | matchess
 - [x] limit
 - [x] start
 - [x] sort
 
 ### contains
-`name_contains: 'Mark'`: the field name in the db is a string and contains the substring 'Mark'. Mark, marks, Marky would be returned. It is case insentitive
+`name_contains: 'Mark Twain'`: the field name in the db is a string and contains the substring 'Mark Twain'. Mark twain, mark twain, mark Twain, etc. would be returned. It is case insentitive
 
 ### containss
-`name_contains: 'Mark'`: the field name in the db is a string and contains the substring 'Mark'. Mark, Marks, Marky would be returned. It is case sensitive
+`name_contains: 'Mark'`: the field name in the db is a string and contains the substring 'Mark Twain'. Mark Twain, would be returned while mark Twain will not. It is case sensitive
+
+### matches
+`name_matches: 'Mark Sculby'`: the field name in the db is a string and matches the substring 'Mark' OR the substring 'Sculby'. Mark Johnson, Vincent Skulby, etc. would be returned. It is case insentitive
+
+### matchess
+`name_matchess: 'Mark Sculby'`: the field name in the db is a string and matches the substring 'Mark' OR the substring 'Sculby'. Mark Johnson, Vincent Skulby, etc. would be returned while mark Johnson would not. It is case sentitive
 
 ## ne
 `age_ne: 21`: the field age does not equal to 21. Can be used with any field type.
@@ -103,5 +111,5 @@ For example for:
 ## TODO
 - [x] Add mongodb client compatibility
 - [x] Add demo
-- [ ] Refine search and explain different behaviors
+- [x] Refine search and explain different behaviors
 - [ ] Use search indexes when available
