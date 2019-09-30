@@ -35,7 +35,7 @@ beforeAll(async () => {
           },
           description: {
             bsonType: 'string'
-          },
+          }
         }
       }
     }
@@ -44,9 +44,9 @@ beforeAll(async () => {
   await Test.ensureIndex({ description: 'text' })
 })
 
-beforeEach(async () => { })
+beforeEach(async () => {})
 
-afterEach(async () => { })
+afterEach(async () => {})
 
 afterAll(async () => {
   client.close()
@@ -71,14 +71,18 @@ test('It should apply containss modifier', async () => {
 })
 
 test('It should apply matches modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.matches }).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.matches
+  }).toArray()
   expect(result).toHaveLength(3)
   expect(result[0].name).toBe('lore')
   expect(result[1].name).toBe('ipsum')
 })
 
 test('It should apply matchess modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.matchess }).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.matchess
+  }).toArray()
   expect(result).toHaveLength(2)
   expect(result[0].name).toBe('ipsum')
   expect(result[1].name).toBe('Lore')
@@ -93,25 +97,39 @@ test('It should apply contains modifier', async () => {
 })
 
 test('It should apply containsIndex modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.containsIndex }).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.containsIndex
+  }).toArray()
   expect(result).toHaveLength(1)
-  expect(result[0].description).toEqual(expect.stringContaining(docs[1].description))
+  expect(result[0].description).toEqual(
+    expect.stringContaining(docs[1].description)
+  )
 })
 
 test('It should apply containssIndex modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.containssIndex }).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.containssIndex
+  }).toArray()
   expect(result).toHaveLength(1)
-  expect(result[0].description).toEqual(expect.stringMatching(docs[0].description))
+  expect(result[0].description).toEqual(
+    expect.stringMatching(docs[0].description)
+  )
 })
 
 test('It should apply matchessIndex modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.matchessIndex }).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.matchessIndex
+  }).toArray()
   expect(result).toHaveLength(1)
-  expect(result[0].description).toEqual(expect.stringContaining(docs[1].description))
+  expect(result[0].description).toEqual(
+    expect.stringContaining(docs[1].description)
+  )
 })
 
 test('It should apply matches modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.matches }).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.matches
+  }).toArray()
   expect(result).toHaveLength(3)
   expect(result[0].name).toBe('lore')
   expect(result[1].name).toBe('ipsum')
