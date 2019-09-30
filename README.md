@@ -29,8 +29,8 @@ yarn add mongo-search-parameters
 ```
 
 ## Demo
-- Mongoose: https://codesandbox.io/s/mongo-search-parameters-mongoose-u2q5i
-- Apollo Graphql + Mongoose: https://codesandbox.io/s/mongo-search-params-apollo-i8hr5
+- Mongoose: https://glitch.com/~mongo-search-parameters-plain
+- Apollo Graphql + Mongoose: https://glitch.com/~mongo-search-parameters-with-apollo-server
 
 ## Usage
 
