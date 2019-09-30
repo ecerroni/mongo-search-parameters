@@ -1,68 +1,12 @@
 import mongoose from 'mongoose'
 import { MongoMemoryServer } from 'mongodb-memory-server-core'
 import mapMongoOperators from '../src'
+import { docs, operators } from './fixtures'
 
 jest.setTimeout(60000)
 
 let mongoServer
 let Test
-
-const operators = {
-  field: {
-    where: {
-      field: 3
-    }
-  },
-  contains: {
-    where: {
-      name_contains: 'lore'
-    }
-  },
-  containss: {
-    where: {
-      name_containss: 'Lore'
-    }
-  },
-  matches: {
-    where: {
-      name_matches: 'lore ipsum'
-    }
-  },
-  matchess: {
-    where: {
-      name_matchess: 'Lore ipsum'
-    }
-  },
-  gt: {
-    where: {
-      age_gt: 5
-    }
-  },
-  contains_gte: {
-    where: {
-      name_contains: 'lore',
-      age_gte: 4
-    }
-  }
-}
-
-const docs = [
-  {
-    field: 1,
-    name: 'lore',
-    age: 4
-  },
-  {
-    field: 2,
-    name: 'ipsum',
-    age: 5
-  },
-  {
-    field: 3,
-    name: 'Lore',
-    age: 6
-  }
-]
 
 beforeAll(async () => {
   mongoServer = new MongoMemoryServer({
@@ -80,7 +24,11 @@ beforeAll(async () => {
     new mongoose.Schema({
       name: String,
       age: Number,
-      field: Number
+      field: Number,
+      description: {
+        type: String,
+        index: 'text',
+      }
     })
   )
   await Test.insertMany([...docs])
@@ -109,13 +57,44 @@ test('It should apply containss modifier', async () => {
   expect(result).toHaveLength(1)
   expect(result[0].name).toBe('Lore')
   expect(result[0].constructor.name).toBe('model')
-}),
-  test('It should apply contains modifier', async () => {
-    const result = await mapMongoOperators(Test, { ...operators.contains })
-    expect(result).toHaveLength(2)
-    expect(result[0].name).toBe('lore')
-    expect(result[0].constructor.name).toBe('model')
-  })
+})
+
+test('It should apply contains modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.contains })
+  expect(result).toHaveLength(2)
+  expect(result[0].name).toBe('lore')
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply containsIndex modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.containsIndex })
+  expect(result).toHaveLength(1)
+  expect(result[0].description).toEqual(expect.stringContaining(docs[1].description))
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply containssIndex modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.containssIndex })
+  expect(result).toHaveLength(1)
+  expect(result[0].description).toEqual(expect.stringMatching(docs[0].description))
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply matchesIndex modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matchesIndex })
+  expect(result).toHaveLength(3)
+  expect(result[0].description).toEqual(expect.stringContaining(docs[0].description))
+  expect(result[1].description).toEqual(expect.stringContaining(docs[2].description))
+  expect(result[2].description).toEqual(expect.stringContaining(docs[1].description))
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply matchessIndex modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matchessIndex })
+  expect(result).toHaveLength(1)
+  expect(result[0].description).toEqual(expect.stringContaining(docs[1].description))
+  expect(result[0].constructor.name).toBe('model')
+})
 
 test('It should apply matches modifier', async () => {
   const result = await mapMongoOperators(Test, { ...operators.matches })

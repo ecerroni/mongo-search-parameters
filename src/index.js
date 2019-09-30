@@ -27,6 +27,41 @@ const filterOperators = {
     }
     return params
   },
+  containsIndex: ({ key, value }) => {
+    const params = {
+      $and: [
+        {
+          $text: {
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
+          }
+        },
+        {
+          [key]: {
+            $regex: `${value.trim().replace(/\s\s+/g, ' ')}`,
+            $options: 'i'
+          }
+        }
+      ]
+    }
+    return params
+  },
+  containssIndex: ({ key, value }) => {
+    const params = {
+      $and: [
+        {
+          $text: {
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
+          }
+        },
+        {
+          [key]: {
+            $regex: `${value.trim().replace(/\s\s+/g, ' ')}`
+          }
+        }
+      ]
+    }
+    return params
+  },
   matches: ({ key, value }) => {
     const params = {
       [key]: {
@@ -51,6 +86,51 @@ const filterOperators = {
           .map(p => `\\b${p}`)
           .join('|')}`
       }
+    }
+    return params
+  },
+  matchesIndex: ({ key, value }) => {
+    const params = {
+      $and: [
+        {
+          $text: {
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
+          }
+        },
+        {
+          [key]: {
+            $regex: `${value
+              .trim()
+              .replace(/\s\s+/g, ' ')
+              .split(' ')
+              .map(p => `\\b${p}`)
+              .join('|')}`,
+            $options: 'i'
+          }
+        }
+      ]
+    }
+    return params
+  },
+  matchessIndex: ({ key, value }) => {
+    const params = {
+      $and: [
+        {
+          $text: {
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
+          }
+        },
+        {
+          [key]: {
+            $regex: `${value
+              .trim()
+              .replace(/\s\s+/g, ' ')
+              .split(' ')
+              .map(p => `\\b${p}`)
+              .join('|')}`
+          }
+        }
+      ]
     }
     return params
   }

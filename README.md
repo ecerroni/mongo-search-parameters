@@ -11,7 +11,7 @@ You pass the search parameters and get the back the expected result using for ex
 ```js
     const result = await Test.find({
       where: {
-        title_contains: "lore"
+        title_contains: "lore",
       }
     });
     res.send(result);
@@ -74,6 +74,10 @@ For example for:
 - [x] where | containss
 - [x] where | matches
 - [x] where | matchess
+- [x] where | containsIndex
+- [x] where | containssIndex
+- [x] where | matchesIndex
+- [x] where | matchessIndex
 - [x] limit
 - [x] start
 - [x] sort
@@ -81,14 +85,26 @@ For example for:
 ### contains
 `name_contains: 'Mark Twain'`: the field name in the db is a string and contains the substring 'Mark Twain'. Mark twain, mark twain, mark Twain, etc. would be returned. It is case insentitive
 
+### containsIndex
+`name_containsIndex: 'Mark Twain'`: like `name_contains` but uses indexes. Do not forget to set a text index on the field `name` and that the MongoDB version you use supports text indexes as well
+
 ### containss
 `name_contains: 'Mark'`: the field name in the db is a string and contains the substring 'Mark Twain'. Mark Twain, would be returned while mark Twain will not. It is case sensitive
+
+### containssIndex
+`name_containssIndex: 'Mark Twain'`: like `name_containss` but uses indexes. Do not forget to set a text index on the field `name` and that the MongoDB version you use supports text indexes as well
 
 ### matches
 `name_matches: 'Mark Sculby'`: the field name in the db is a string and matches the substring 'Mark' OR the substring 'Sculby'. Mark Johnson, Vincent Skulby, etc. would be returned. It is case insentitive
 
+### matchesIndex
+`name_matchesIndex: 'Mark Twain'`: like `name_matches` but uses indexes. Do not forget to set a text index on the field `name` and that the MongoDB version you use supports text indexes as well
+
 ### matchess
 `name_matchess: 'Mark Sculby'`: the field name in the db is a string and matches the substring 'Mark' OR the substring 'Sculby'. Mark Johnson, Vincent Skulby, etc. would be returned while mark Johnson would not. It is case sentitive
+
+### matchessIndex
+`name_matchessIndex: 'Mark Twain'`: like `name_matchess` but uses indexes. Do not forget to set a text index on the field `name` and that the MongoDB version you use supports text indexes as well
 
 ## ne
 `age_ne: 21`: the field age does not equal to 21. Can be used with any field type.
@@ -112,4 +128,5 @@ For example for:
 - [x] Add mongodb client compatibility
 - [x] Add demo
 - [x] Refine search and explain different behaviors
-- [ ] Use search indexes when available
+- [x] Allow to search using text indexes
+- [ ] Implement OR operator
