@@ -4,12 +4,12 @@
 
 Utility function that maps a JSON object to mongoose operators, works with node 10.
 
-This is useful for forwarding graphql request params to the mongoose model. Similar to how Prisma and Strapi work.
+This is useful for forwarding graphql request params to either the mongoose model or the mongodb collection. Similar to how Prisma and Strapi work.
 
-You pass the search parameters and get the back the expected result using for example
+You pass the collection and the search parameters and get the back the expected result using for example
 
 ```js
-    const result = await Test.find({
+    const result = await useSearchParams(Test, {
       where: {
         title_contains: "lore",
       }
@@ -29,13 +29,13 @@ yarn add mongo-search-parameters
 ```
 
 ## Demo
-Mongoose: https://codesandbox.io/s/mongo-search-parameters-mongoose-u2q5i
-Apollo Graphql + Mongoose: https://codesandbox.io/s/mongo-search-params-apollo-i8hr5
+- Mongoose: https://codesandbox.io/s/mongo-search-parameters-mongoose-u2q5i
+- Apollo Graphql + Mongoose: https://codesandbox.io/s/mongo-search-params-apollo-i8hr5
 
 ## Usage
 
 ```js
-import applySearchParams from 'mongo-search-parameters';
+import useSearchParams from 'mongo-search-parameters';
 import { mongooseModels } from 'path-to-your-mongoose-models';
 
 const { User } = mongoModels;
@@ -52,7 +52,7 @@ const params = { // all fields are optional
 // the above query will find all users which names contain (case insensitive) 'Test' and age is greater than 21, sort them by name from Z to A, limit them to just 10 rows if more are returned
 
 export default async () => {
-    const categories = await applySearchParams(User, { ...params });
+    const categories = await useSearchParams(User, { ...params });
     return categories
 }
 
@@ -60,8 +60,8 @@ export default async () => {
 
 All mongo and mongoose chain methods and options are still allowed.
 For example for:
-- mongoose you can do `await applySearchParams(User, { ...params }, { age: 1 }).lean()`
-- mongo you can do `await applySearchParams(User, { ...params }, { projection: { age: 1 } }).toArray()`
+- mongoose you can do `await useSearchParams(User, { ...params }, { age: 1 }).lean()`
+- mongo you can do `await useSearchParams(User, { ...params }, { projection: { age: 1 } }).toArray()`
 
 ## Supported operators
 - [x] where | ne
