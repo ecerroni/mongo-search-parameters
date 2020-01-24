@@ -186,24 +186,30 @@ export default (Collection, args, projections) => {
     return { ...o }
   }, {})
   if (sort) {
-    const sorting = sort.split(':')
-    if (!isMongoose) {
-      sorting[1] = sorting[1] === 'asc' ? 1 : -1
-    }
+    const sorting = Array.isArray(sort)
+      ? sort.reduce(
+          (o, i) => ({
+            ...o,
+            [i.split(':')[0]]: i.split(':')[1] === 'asc' ? 1 : -1
+          }),
+          {}
+        )
+      : { [sort.split(':')[0]]: sort.split(':')[1] === 'asc' ? 1 : -1 }
+
     if (start) {
       if (limit && limit > -1) {
         return Collection.find({ ...params, ...enhancedParams }, projections)
-          .sort({ [sorting[0]]: sorting[1] })
+          .sort({ ...sorting })
           .skip(start)
           .limit(limit)
       }
       return Collection.find({ ...params, ...enhancedParams }, projections)
-        .sort({ [sorting[0]]: sorting[1] })
+        .sort({ ...sorting })
         .skip(start)
     }
     if (limit && limit > -1) {
       return Collection.find({ ...params, ...enhancedParams }, projections)
-        .sort({ [sorting[0]]: sorting[1] })
+        .sort({ ...sorting })
         .limit(limit)
     }
     return Collection.find({ ...params, ...enhancedParams }, projections).sort({

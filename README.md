@@ -46,7 +46,7 @@ const params = { // all fields are optional
     name_contains: 'Test',
     age_gt: 21      
   },
-  sort: 'name:desc',
+  sort: 'name:desc', // it does accept also an array like ['name:desc', 'age:asc']
   limit: 10
 }
 // the above query will find all users which names contain (case insensitive) 'Test' and age is greater than 21, sort them by name from Z to A, limit them to just 10 rows if more are returned
@@ -106,7 +106,7 @@ For example for:
 ### matchessIndex
 `name_matchessIndex: 'Mark Twain'`: like `name_matchess` but uses indexes. Do not forget to set a text index on the field `name` and that the MongoDB version you use supports text indexes as well
 
-## ne
+### ne
 `age_ne: 21`: the field age does not equal to 21. Can be used with any field type.
 
 ### gt
