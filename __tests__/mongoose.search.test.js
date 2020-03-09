@@ -47,9 +47,9 @@ beforeAll(async () => {
   await TestMultiSort.insertMany([...docsMultiSort])
 })
 
-beforeEach(async () => { })
+beforeEach(async () => {})
 
-afterEach(async () => { })
+afterEach(async () => {})
 
 afterAll(async () => {
   await mongoose.disconnect()
@@ -174,7 +174,10 @@ test('It should apply sort DESC and limit operator', async () => {
 })
 
 test('It should apply sort ASC with array of values and limit operator', async () => {
-  const result = await mapMongoOperators(TestMultiSort, { limit: 2, sort: ['field:asc', 'age:desc'] })
+  const result = await mapMongoOperators(TestMultiSort, {
+    limit: 2,
+    sort: ['field:asc', 'age:desc']
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(1)
@@ -184,7 +187,10 @@ test('It should apply sort ASC with array of values and limit operator', async (
 })
 
 test('It should apply sort DESC with array of values and limit operator', async () => {
-  const result = await mapMongoOperators(TestMultiSort, { limit: 2, sort: ['field:desc', 'age:asc'] })
+  const result = await mapMongoOperators(TestMultiSort, {
+    limit: 2,
+    sort: ['field:desc', 'age:asc']
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(2)
   expect(result[1].field).toBe(1)
@@ -239,4 +245,29 @@ test('It should return just one field per row with { age: 1 }', async () => {
   expect(result[0].field).toBe(undefined)
   expect(result[0].name).toBe(undefined)
   expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should return what is included in where condition', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.age_in
+  })
+  expect(result).toHaveLength(2)
+  expect(result[0].age).toBe(4)
+  expect(result[1].age).toBe(5)
+})
+
+test('It should return what is NOT included in where condition', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.age_nin
+  })
+  expect(result).toHaveLength(1)
+  expect(result[0].age).toBe(6)
+})
+
+test('It should return what is included in where condition even if single value', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.age_in_single
+  })
+  expect(result).toHaveLength(1)
+  expect(result[0].age).toBe(4)
 })

@@ -70,6 +70,7 @@ For example for:
 - [x] where | lt
 - [x] where | lte
 - [x] where | in
+- [x] where | nin
 - [x] where | contains
 - [x] where | containss
 - [x] where | matches
@@ -122,7 +123,10 @@ For example for:
 `age_lte: 21`: greater than or equal to
 
 ### in
-`age_in: [21, 26, 27, 28, 21]`: true if field is contained in the array of values supplied
+`age_in: [21, 26, 27, 28, 21]`: true if field is contained in the array of values supplied. Accepts also single value like `age_in: 21`
+
+### nin
+`age_nin: [21]`: true if field is NOT contained in the array of values supplied
 
 ## TODO
 - [x] Add mongodb client compatibility

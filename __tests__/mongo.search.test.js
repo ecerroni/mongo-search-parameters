@@ -63,9 +63,9 @@ beforeAll(async () => {
   await TestMultiSort.insertMany([...docsMultiSort])
 })
 
-beforeEach(async () => { })
+beforeEach(async () => {})
 
-afterEach(async () => { })
+afterEach(async () => {})
 
 afterAll(async () => {
   client.close()
@@ -238,4 +238,29 @@ test('It should return just one field per row with projection', async () => {
   expect(result[1].age).toBe(6)
   expect(result[0].field).toBe(undefined)
   expect(result[0].name).toBe(undefined)
+})
+
+test('It should return what is included in where condition', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.age_in
+  }).toArray()
+  expect(result).toHaveLength(2)
+  expect(result[0].age).toBe(4)
+  expect(result[1].age).toBe(5)
+})
+
+test('It should return what is NOT included in where condition', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.age_nin
+  }).toArray()
+  expect(result).toHaveLength(1)
+  expect(result[0].age).toBe(6)
+})
+
+test('It should return what is included in where condition even if single value', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.age_in_single
+  }).toArray()
+  expect(result).toHaveLength(1)
+  expect(result[0].age).toBe(4)
 })

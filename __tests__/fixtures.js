@@ -55,6 +55,21 @@ export const operators = {
       name_contains: 'lore',
       age_gte: 4
     }
+  },
+  age_in: {
+    where: {
+      age_in: [4, 5]
+    }
+  },
+  age_nin: {
+    where: {
+      age_nin: [4, 5]
+    }
+  },
+  age_in_single: {
+    where: {
+      age_in: 4
+    }
   }
 }
 

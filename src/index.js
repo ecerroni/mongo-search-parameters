@@ -10,6 +10,12 @@ const filterOperators = {
     }
     return { [key]: { $in: [value] } }
   },
+  nin: ({ key, value }) => {
+    if (Array.isArray(value)) {
+      return { [key]: { $nin: [...value] } }
+    }
+    return { [key]: { $nin: [value] } }
+  },
   contains: ({ key, value }) => {
     const params = {
       [key]: {
