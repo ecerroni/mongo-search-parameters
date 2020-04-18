@@ -1,4 +1,15 @@
 export const operators = {
+  standard: {
+    field: 1
+  },
+  mixed: {
+    field: { $in: [1, 3] },
+    where: { age_gte: 6 }
+  },
+  mixedPrecedence: {
+    field: 2,
+    where: { field: 3, age_gte: 6 }
+  },
   field: {
     where: {
       field: 3

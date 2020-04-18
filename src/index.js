@@ -146,7 +146,7 @@ const filterOperatorsValues = Object.keys(filterOperators)
 
 export default (Collection, args, projections) => {
   const isMongoose = typeof Collection === 'function'
-  const { sort, limit, start, where = {} } = args || {}
+  const { sort, limit, start, where = {}, ...rest } = args || {}
   let enhancedParams = {}
   let params =
     where !== '' &&
@@ -181,6 +181,7 @@ export default (Collection, args, projections) => {
           return { ...obj, [key]: where[key] }
         }, {})
       : {}
+  params = { ...rest, ...params }
   // Sanitize input discarding all params that have no corresponding field in the schema [Only for mongoose]!
   const validFieldNames = isMongoose
     ? Object.keys(Collection.schema.tree)

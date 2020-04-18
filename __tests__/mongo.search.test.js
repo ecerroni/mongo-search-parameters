@@ -63,9 +63,9 @@ beforeAll(async () => {
   await TestMultiSort.insertMany([...docsMultiSort])
 })
 
-beforeEach(async () => {})
+beforeEach(async () => { })
 
-afterEach(async () => {})
+afterEach(async () => { })
 
 afterAll(async () => {
   client.close()
@@ -263,4 +263,28 @@ test('It should return what is included in where condition even if single value'
   }).toArray()
   expect(result).toHaveLength(1)
   expect(result[0].age).toBe(4)
+})
+
+test('It should apply params outside of where', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.standard
+  }).toArray()
+  expect(result).toHaveLength(1)
+  expect(result[0].field).toBe(1)
+})
+
+test('It should apply both params outside of where and where', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.mixed
+  }).toArray()
+  expect(result).toHaveLength(1)
+  expect(result[0].field).toBe(3)
+})
+
+test('It should apply both params outside of where and where giving where priority', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.mixedPrecedence
+  }).toArray()
+  expect(result).toHaveLength(1)
+  expect(result[0].field).toBe(3)
 })
