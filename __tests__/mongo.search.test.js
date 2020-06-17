@@ -63,9 +63,9 @@ beforeAll(async () => {
   await TestMultiSort.insertMany([...docsMultiSort])
 })
 
-beforeEach(async () => { })
+beforeEach(async () => {})
 
-afterEach(async () => { })
+afterEach(async () => {})
 
 afterAll(async () => {
   client.close()
