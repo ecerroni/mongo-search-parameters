@@ -220,7 +220,7 @@ export default (Collection, args, projections) => {
         .limit(limit)
     }
     return Collection.find({ ...params, ...enhancedParams }, projections).sort({
-      [sorting[0]]: sorting[1]
+      ...sorting
     })
   }
 

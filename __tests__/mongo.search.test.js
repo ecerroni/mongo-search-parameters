@@ -203,6 +203,17 @@ test('It should apply sort ASC with array of values and limit operator', async (
   expect(result[1].age).toBe(5)
 })
 
+test('It should apply sort DESC with array of values', async () => {
+  const result = await mapMongoOperators(TestMultiSort, {
+    sort: ['field:desc', 'age:asc']
+  }).toArray()
+  expect(result).toHaveLength(docsMultiSort.length)
+  expect(result[0].field).toBe(2)
+  expect(result[1].field).toBe(1)
+  expect(result[0].age).toBe(6)
+  expect(result[1].age).toBe(4)
+})
+
 test('It should apply sort DESC with array of values and limit operator', async () => {
   const result = await mapMongoOperators(TestMultiSort, {
     limit: 2,
