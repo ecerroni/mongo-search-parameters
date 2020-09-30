@@ -1,3 +1,7 @@
+## [0.0.8](https://github.com/ecerroni/mongo-search-parameters/compare/v0.0.7...v0.0.8) (2020-09-30)
+
+
+
 ## [0.0.7](https://github.com/ecerroni/mongo-search-parameters/compare/v0.0.6...v0.0.7) (2020-06-17)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "mongo-search-parameters",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Easy find() search parameters",
   "main": "build/index.js",
   "files": [
