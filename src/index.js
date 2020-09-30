@@ -187,7 +187,8 @@ export default (Collection, args, projections) => {
     ? Object.keys(Collection.schema.tree)
     : [...Object.keys(params)]
   params = Object.keys(params).reduce((o, k) => {
-    if (validFieldNames.includes(k)) {
+    if (validFieldNames.includes(k) || (k && k.length && k[0] === '$')) {
+      // dollar operators must be included
       return { ...o, [k]: params[k] }
     }
     return { ...o }

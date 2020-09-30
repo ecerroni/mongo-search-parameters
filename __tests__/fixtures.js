@@ -1,6 +1,7 @@
 export const operators = {
   standard: {
-    field: 1
+    field: 1,
+    age: 4
   },
   mixed: {
     field: { $in: [1, 3] },
@@ -81,6 +82,12 @@ export const operators = {
     where: {
       age_in: 4
     }
+  },
+  conditional: {
+    $or: [
+      { field: 1 },
+      { field: 3 },
+    ]
   }
 }
 
