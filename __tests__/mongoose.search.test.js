@@ -304,11 +304,20 @@ test('It should apply both params outside of where and where giving where priori
   expect(result[0].field).toBe(3)
 })
 
-test('It should apply native conditional operators', async () => {
+test('It should apply native conditional $or operator', async () => {
   const result = await mapMongoOperators(Test, {
-    ...operators.conditional
+    ...operators.conditional.or
   })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(3)
+})
+
+test('It should apply native conditional $and operator', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.conditional.and
+  })
+  expect(result).toHaveLength(1)
+  expect(result[0].field).toBe(1)
+  expect(result[0].age).toBe(4)
 })
