@@ -146,7 +146,7 @@ const filterOperatorsValues = Object.keys(filterOperators)
 
 export default (Collection, args, projections) => {
   const isMongoose = typeof Collection === 'function'
-  const { sort, limit, start, where = {}, ...rest } = args || {}
+  const { sort, limit, skip, where = {}, ...rest } = args || {}
   let enhancedParams = {}
   let params =
     where !== '' &&
@@ -204,16 +204,16 @@ export default (Collection, args, projections) => {
         )
       : { [sort.split(':')[0]]: sort.split(':')[1] === 'asc' ? 1 : -1 }
 
-    if (start) {
+    if (skip) {
       if (limit && limit > -1) {
         return Collection.find({ ...params, ...enhancedParams }, projections)
           .sort({ ...sorting })
-          .skip(start)
+          .skip(skip)
           .limit(limit)
       }
       return Collection.find({ ...params, ...enhancedParams }, projections)
         .sort({ ...sorting })
-        .skip(start)
+        .skip(skip)
     }
     if (limit && limit > -1) {
       return Collection.find({ ...params, ...enhancedParams }, projections)
@@ -225,14 +225,14 @@ export default (Collection, args, projections) => {
     })
   }
 
-  if (start) {
+  if (skip) {
     if (limit && limit > -1) {
       return Collection.find({ ...params, ...enhancedParams }, projections)
-        .skip(start)
+        .skip(skip)
         .limit(limit)
     }
     return Collection.find({ ...params, ...enhancedParams }, projections).skip(
-      start
+      skip
     )
   }
 

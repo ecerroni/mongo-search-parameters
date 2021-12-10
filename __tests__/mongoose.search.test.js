@@ -165,6 +165,14 @@ test('It should apply sort ASC and limit operator', async () => {
   expect(result[0].constructor.name).toBe('model')
 })
 
+test('It should apply sort ASC and limit + skip operator', async () => {
+  const result = await mapMongoOperators(Test, { limit: 2, skip: 1, sort: 'field:asc' })
+  expect(result).toHaveLength(2)
+  expect(result[0].field).toBe(2)
+  expect(result[1].field).toBe(3)
+  expect(result[0].constructor.name).toBe('model')
+})
+
 test('It should apply sort DESC ', async () => {
   const result = await mapMongoOperators(Test, { sort: 'field:desc' })
   expect(result).toHaveLength(docs.length)
