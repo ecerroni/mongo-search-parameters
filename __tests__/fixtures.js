@@ -84,10 +84,7 @@ export const operators = {
     }
   },
   conditional: {
-    $or: [
-      { field: 1 },
-      { field: 3 },
-    ]
+    $or: [{ field: 1 }, { field: 3 }]
   }
 }
 

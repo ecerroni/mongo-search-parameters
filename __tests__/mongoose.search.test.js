@@ -166,7 +166,11 @@ test('It should apply sort ASC and limit operator', async () => {
 })
 
 test('It should apply sort ASC and limit + skip operator', async () => {
-  const result = await mapMongoOperators(Test, { limit: 2, skip: 1, sort: 'field:asc' })
+  const result = await mapMongoOperators(Test, {
+    limit: 2,
+    skip: 1,
+    sort: 'field:asc'
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(2)
   expect(result[1].field).toBe(3)
