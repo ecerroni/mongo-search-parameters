@@ -1,21 +1,32 @@
+import mongoose from 'mongoose'
+
+const validMongoDbIDRegex = new RegExp('^[0-9a-fA-F]{24}$')
+const checkForValidMongoDbID = id => validMongoDbIDRegex.test(id)
+
+const getSafeValue = value => {
+  if (checkForValidMongoDbID(value)) return mongoose.Types.ObjectId(value)
+
+  if (typeof value === 'string') {
+    const date = new Date(value)
+    if (date > 0) {
+      return date.toISOString()
+    }
+  }
+
+  return value
+}
+
 const filterOperators = {
-  ne: ({ key, value }) => ({ [key]: { $ne: value } }),
-  gt: ({ key, value }) => ({ [key]: { $gt: value } }),
-  gte: ({ key, value }) => ({ [key]: { $gte: value } }),
-  lt: ({ key, value }) => ({ [key]: { $lt: value } }),
-  lte: ({ key, value }) => ({ [key]: { $lte: value } }),
-  in: ({ key, value }) => {
-    if (Array.isArray(value)) {
-      return { [key]: { $in: [...value] } }
-    }
-    return { [key]: { $in: [value] } }
-  },
-  nin: ({ key, value }) => {
-    if (Array.isArray(value)) {
-      return { [key]: { $nin: [...value] } }
-    }
-    return { [key]: { $nin: [value] } }
-  },
+  gt: ({ key, value }) => ({ [key]: { $gt: getSafeValue(value) } }),
+  gte: ({ key, value }) => ({ [key]: { $gte: getSafeValue(value) } }),
+  lt: ({ key, value }) => ({ [key]: { $lt: getSafeValue(value) } }),
+  lte: ({ key, value }) => ({ [key]: { $lte: getSafeValue(value) } }),
+  ir: ({ key, value }) => ({
+    [key]: { $gt: getSafeValue(value[0]), $lt: getSafeValue(value[1]) }
+  }),
+  ire: ({ key, value }) => ({
+    [key]: { $gte: getSafeValue(value[0]), $lte: getSafeValue(value[1]) }
+  }),
   contains: ({ key, value }) => {
     const params = {
       [key]: {
@@ -33,6 +44,21 @@ const filterOperators = {
     }
     return params
   },
+  in: ({ key, value }) => {
+    if (Array.isArray(value)) {
+      return {
+        [key]: { $in: [...value.map(v => getSafeValue(v))] }
+      }
+    }
+    return { [key]: { $in: [getSafeValue(value)] } }
+  },
+  nin: ({ key, value }) => {
+    if (Array.isArray(value)) {
+      return { [key]: { $nin: [...value.map(v => getSafeValue(v))] } }
+    }
+    return { [key]: { $nin: [getSafeValue(value)] } }
+  },
+  // [NOTE]: implement safe value for the following as well
   containsIndex: ({ key, value }) => {
     const params = {
       $and: [
@@ -156,6 +182,15 @@ export default (Collection, args, projections) => {
       ? Object.keys(where).reduce((obj, key) => {
           const value = where[key]
           let withOperator = key.split('_')
+          if (withOperator.length > 2) {
+            // there are multiple underscores
+            withOperator = [
+              // get everything including underscores up to filter operator
+              key.replace(`_${withOperator[withOperator.length - 1]}`, ''),
+              // actual filter operator
+              withOperator[withOperator.length - 1]
+            ]
+          }
           if (withOperator[1] === 'id' && withOperator[2]) {
             withOperator = ['_id', withOperator[2]]
           }
