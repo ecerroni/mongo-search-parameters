@@ -161,7 +161,9 @@ test('It should apply gt modifier', async () => {
 })
 
 test('It should apply gte modifier', async () => {
-  const result = await mapMongoOperators(TestMultiSort, { ...operators.gte }).toArray()
+  const result = await mapMongoOperators(TestMultiSort, {
+    ...operators.gte
+  }).toArray()
   expect(result).toHaveLength(3)
   expect(result[0].age).toBe(5)
   expect(result[1].age).toBe(6)
@@ -270,14 +272,10 @@ test('It should return just one field per row with projection', async () => {
   expect(result[0].name).toBe(undefined)
 })
 
-
 test('It should handle underscores and return 1 item for that date in the condition', async () => {
-  const result = await mapMongoOperators(
-    Test,
-    {
-      ...operators.created_at_gt
-    }
-  ).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.created_at_gt
+  }).toArray()
   expect(result).toHaveLength(1)
   expect(result[0].age).toBe(5)
   expect(result[0].field).toBe(2)
@@ -285,12 +283,9 @@ test('It should handle underscores and return 1 item for that date in the condit
 })
 
 test('It should handle underscores and return 2 items for that date in the condition', async () => {
-  const result = await mapMongoOperators(
-    Test,
-    {
-      ...operators.created_at_gte
-    }
-  ).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.created_at_gte
+  }).toArray()
   expect(result).toHaveLength(2)
 
   expect(result[0].age).toBe(4)
@@ -303,12 +298,9 @@ test('It should handle underscores and return 2 items for that date in the condi
 })
 
 test('It should handle underscores and return 1 item for that range date in the condition', async () => {
-  const result = await mapMongoOperators(
-    Test,
-    {
-      ...operators.created_at_ir
-    }
-  ).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.created_at_ir
+  }).toArray()
   expect(result).toHaveLength(1)
   expect(result[0].age).toBe(4)
   expect(result[0].field).toBe(1)
@@ -316,12 +308,9 @@ test('It should handle underscores and return 1 item for that range date in the 
 })
 
 test('It should handle underscores and return 2 items for that date range in the condition', async () => {
-  const result = await mapMongoOperators(
-    Test,
-    {
-      ...operators.created_at_ire
-    }
-  ).toArray()
+  const result = await mapMongoOperators(Test, {
+    ...operators.created_at_ire
+  }).toArray()
   expect(result).toHaveLength(2)
 
   expect(result[0].age).toBe(4)
@@ -332,7 +321,6 @@ test('It should handle underscores and return 2 items for that date range in the
   expect(result[1].field).toBe(2)
   expect(result[1].name).toBe('ipsum')
 })
-
 
 test('It should return what is included in where condition', async () => {
   const result = await mapMongoOperators(Test, {

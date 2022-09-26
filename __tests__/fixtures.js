@@ -1,5 +1,3 @@
-
-
 const oneWeekAgo = new Date()
 oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 
@@ -8,7 +6,6 @@ twoWeeksAgo.setDate(oneWeekAgo.getDate() - 7)
 
 const threeWeeksAgo = new Date()
 threeWeeksAgo.setDate(twoWeeksAgo.getDate() - 7)
-
 
 export const operators = {
   standard: {
@@ -81,12 +78,18 @@ export const operators = {
   },
   created_at_ir: {
     where: {
-      created_at_ir: [new Date(threeWeeksAgo).toISOString(), new Date(oneWeekAgo).toISOString()]
+      created_at_ir: [
+        new Date(threeWeeksAgo).toISOString(),
+        new Date(oneWeekAgo).toISOString()
+      ]
     }
   },
   created_at_ire: {
     where: {
-      created_at_ire: [new Date(threeWeeksAgo).toISOString(), new Date(oneWeekAgo).toISOString()]
+      created_at_ire: [
+        new Date(threeWeeksAgo).toISOString(),
+        new Date(oneWeekAgo).toISOString()
+      ]
     }
   },
   gt: {
