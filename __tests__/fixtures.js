@@ -1,3 +1,15 @@
+
+
+const oneWeekAgo = new Date()
+oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+const twoWeeksAgo = new Date()
+twoWeeksAgo.setDate(oneWeekAgo.getDate() - 7)
+
+const threeWeeksAgo = new Date()
+threeWeeksAgo.setDate(twoWeeksAgo.getDate() - 7)
+
+
 export const operators = {
   standard: {
     field: 1,
@@ -57,9 +69,34 @@ export const operators = {
       description_matchessIndex: 'Lore ipsum'
     }
   },
+  created_at_gt: {
+    where: {
+      created_at_gt: new Date(twoWeeksAgo).toISOString()
+    }
+  },
+  created_at_gte: {
+    where: {
+      created_at_gte: new Date(twoWeeksAgo).toISOString()
+    }
+  },
+  created_at_ir: {
+    where: {
+      created_at_ir: [new Date(threeWeeksAgo).toISOString(), new Date(oneWeekAgo).toISOString()]
+    }
+  },
+  created_at_ire: {
+    where: {
+      created_at_ire: [new Date(threeWeeksAgo).toISOString(), new Date(oneWeekAgo).toISOString()]
+    }
+  },
   gt: {
     where: {
       age_gt: 5
+    }
+  },
+  gte: {
+    where: {
+      age_gte: 5
     }
   },
   contains_gte: {
@@ -93,6 +130,7 @@ export const docs = [
     field: 1,
     name: 'lore',
     age: 4,
+    created_at: new Date(twoWeeksAgo).toISOString(),
     description:
       'Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.'
   },
@@ -100,6 +138,7 @@ export const docs = [
     field: 2,
     name: 'ipsum',
     age: 5,
+    created_at: new Date(oneWeekAgo).toISOString(),
     description:
       'Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus.'
   },

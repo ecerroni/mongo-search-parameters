@@ -144,6 +144,14 @@ test('It should apply gt modifier', async () => {
   expect(result[0].constructor.name).toBe('model')
 })
 
+test('It should apply gte modifier', async () => {
+  const result = await mapMongoOperators(TestMultiSort, { ...operators.gte })
+  expect(result).toHaveLength(3)
+  expect(result[0].age).toBe(5)
+  expect(result[1].age).toBe(6)
+  expect(result[1].age).toBe(6)
+})
+
 test('It should apply where on field with no modifiers', async () => {
   const result = await mapMongoOperators(Test, { ...operators.field })
   expect(result).toHaveLength(1)
