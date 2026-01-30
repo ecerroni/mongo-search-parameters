@@ -1,14 +1,15 @@
-import mongoose from 'mongoose'
+import mongoose, { Document } from 'mongoose'
 
 const validMongoDbIDRegex = new RegExp('^[0-9a-fA-F]{24}$')
-const checkForValidMongoDbID = id => validMongoDbIDRegex.test(id)
+const checkForValidMongoDbID = (id: string) => validMongoDbIDRegex.test(id)
 
-const getSafeValue = value => {
-  if (checkForValidMongoDbID(value)) return mongoose.Types.ObjectId(value)
+const getSafeValue = (value: any): any => {
+  if (typeof value === 'string' && checkForValidMongoDbID(value))
+    return new mongoose.Types.ObjectId(value)
 
   if (typeof value === 'string') {
     const date = new Date(value)
-    if (date > 0) {
+    if (!isNaN(date.getTime()) && date.getTime() > 0) {
       return date.toISOString()
     }
   }
@@ -16,7 +17,12 @@ const getSafeValue = value => {
   return value
 }
 
-const filterOperators = {
+interface FilterOperatorArgs {
+  key: string
+  value: any
+}
+
+const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
   gt: ({ key, value }) => ({ [key]: { $gt: getSafeValue(value) } }),
   gte: ({ key, value }) => ({ [key]: { $gte: getSafeValue(value) } }),
   lt: ({ key, value }) => ({ [key]: { $lt: getSafeValue(value) } }),
@@ -47,14 +53,14 @@ const filterOperators = {
   in: ({ key, value }) => {
     if (Array.isArray(value)) {
       return {
-        [key]: { $in: [...value.map(v => getSafeValue(v))] }
+        [key]: { $in: [...value.map((v: any) => getSafeValue(v))] }
       }
     }
     return { [key]: { $in: [getSafeValue(value)] } }
   },
   nin: ({ key, value }) => {
     if (Array.isArray(value)) {
-      return { [key]: { $nin: [...value.map(v => getSafeValue(v))] } }
+      return { [key]: { $nin: [...value.map((v: any) => getSafeValue(v))] } }
     }
     return { [key]: { $nin: [getSafeValue(value)] } }
   },
@@ -101,7 +107,7 @@ const filterOperators = {
           .trim()
           .replace(/\s\s+/g, ' ')
           .split(' ')
-          .map(p => `\\b${p}`)
+          .map((p: string) => `\\b${p}`)
           .join('|')}`,
         $options: 'i'
       }
@@ -115,7 +121,7 @@ const filterOperators = {
           .trim()
           .replace(/\s\s+/g, ' ')
           .split(' ')
-          .map(p => `\\b${p}`)
+          .map((p: string) => `\\b${p}`)
           .join('|')}`
       }
     }
@@ -135,7 +141,7 @@ const filterOperators = {
               .trim()
               .replace(/\s\s+/g, ' ')
               .split(' ')
-              .map(p => `\\b${p}`)
+              .map((p: string) => `\\b${p}`)
               .join('|')}`,
             $options: 'i'
           }
@@ -158,7 +164,7 @@ const filterOperators = {
               .trim()
               .replace(/\s\s+/g, ' ')
               .split(' ')
-              .map(p => `\\b${p}`)
+              .map((p: string) => `\\b${p}`)
               .join('|')}`
           }
         }
@@ -170,11 +176,23 @@ const filterOperators = {
 
 const filterOperatorsValues = Object.keys(filterOperators)
 
-export default (Collection, args, projections) => {
-  const isMongoose = typeof Collection === 'function'
+interface Args {
+  sort?: string | string[]
+  limit?: number
+  skip?: number
+  where?: any
+  [key: string]: any
+}
+
+export default <T extends Document>(
+  Collection: any,
+  args: Args,
+  projections?: any
+) => {
+  const isMongoose = typeof Collection === 'function' && Collection.schema
   const { sort, limit, skip, where = {}, ...rest } = args || {}
-  let enhancedParams = {}
-  let params =
+  let enhancedParams: Record<string, any> = {}
+  let params: Record<string, any> =
     where !== '' &&
     typeof where === 'object' &&
     !Array.isArray(where) &&
@@ -218,7 +236,7 @@ export default (Collection, args, projections) => {
       : {}
   params = { ...rest, ...params }
   // Sanitize input discarding all params that have no corresponding field in the schema [Only for mongoose]!
-  const validFieldNames = isMongoose
+  const validFieldNames: string[] = isMongoose
     ? Object.keys(Collection.schema.tree)
     : [...Object.keys(params)]
   params = Object.keys(params).reduce((o, k) => {

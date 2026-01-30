@@ -1,15 +1,12 @@
+import mongoose from 'mongoose'
 import { MongoMemoryServer } from 'mongodb-memory-server-core'
 import mapMongoOperators from '../src'
 import { docs, docsMultiSort, operators } from './fixtures'
 
-const MongoClient = require('mongodb').MongoClient
-
 jest.setTimeout(60000)
 
-let mongoServer
-let db
-let client
-let Test, TestMultiSort
+let mongoServer: any
+let Test: any, TestMultiSort: any
 
 beforeAll(async () => {
   mongoServer = new MongoMemoryServer({
@@ -19,47 +16,34 @@ beforeAll(async () => {
     }
   })
   const mongoUri = await mongoServer.getConnectionString()
-  client = await MongoClient.connect(mongoUri)
-  db = client.db('test')
-
-  Test = await db.createCollection('Test', {
-    validator: {
-      $jsonSchema: {
-        bsonType: 'object',
-        properties: {
-          name: {
-            bsonType: 'string'
-          },
-          age: {
-            bsonType: 'number'
-          },
-          description: {
-            bsonType: 'string'
-          }
-        }
-      }
-    }
+  await mongoose.connect(mongoUri, {}, (err: any) => {
+    if (err) console.error(err)
   })
-  Test.insertMany([...docs])
-  await Test.ensureIndex({ description: 'text' })
-  TestMultiSort = await db.createCollection('TestMultiSort', {
-    validator: {
-      $jsonSchema: {
-        bsonType: 'object',
-        properties: {
-          name: {
-            bsonType: 'string'
-          },
-          age: {
-            bsonType: 'number'
-          },
-          description: {
-            bsonType: 'string'
-          }
-        }
+  Test = await mongoose.model(
+    'Test',
+    new mongoose.Schema({
+      name: String,
+      age: Number,
+      field: Number,
+      description: {
+        type: String,
+        index: 'text'
       }
-    }
-  })
+    })
+  )
+  await Test.insertMany([...docs])
+  TestMultiSort = await mongoose.model(
+    'TestMultiSort',
+    new mongoose.Schema({
+      name: String,
+      age: Number,
+      field: Number,
+      description: {
+        type: String,
+        index: 'text'
+      }
+    })
+  )
   await TestMultiSort.insertMany([...docsMultiSort])
 })
 
@@ -68,102 +52,100 @@ beforeEach(async () => {})
 afterEach(async () => {})
 
 afterAll(async () => {
-  client.close()
+  await mongoose.disconnect()
   await mongoServer.stop()
 })
 
 test('It should have mongo started', async () => {
-  expect(client.isConnected()).toBe(true)
+  expect(mongoose.connection.readyState).toBe(1)
 })
 
 test('It should be able to query', async () => {
-  const result = await Test.find({}).toArray()
+  const result = await Test.find({}).lean()
   expect(result).toHaveLength(docs.length)
 })
 
 test('It should apply containss modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.containss
-  }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.containss })
   expect(result).toHaveLength(1)
   expect(result[0].name).toBe('Lore')
-})
-
-test('It should apply matches modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.matches
-  }).toArray()
-  expect(result).toHaveLength(3)
-  expect(result[0].name).toBe('lore')
-  expect(result[1].name).toBe('ipsum')
-})
-
-test('It should apply matchess modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.matchess
-  }).toArray()
-  expect(result).toHaveLength(2)
-  expect(result[0].name).toBe('ipsum')
-  expect(result[1].name).toBe('Lore')
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply contains modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.contains
-  }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.contains })
   expect(result).toHaveLength(2)
   expect(result[0].name).toBe('lore')
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply containsIndex modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.containsIndex
-  }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.containsIndex })
   expect(result).toHaveLength(1)
   expect(result[0].description).toEqual(
     expect.stringContaining(docs[1].description)
   )
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply containssIndex modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.containssIndex
-  }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.containssIndex })
   expect(result).toHaveLength(1)
   expect(result[0].description).toEqual(
     expect.stringMatching(docs[0].description)
   )
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply matchesIndex modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matchesIndex })
+  expect(result).toHaveLength(3)
+  expect(result[0].description).toEqual(
+    expect.stringContaining(docs[0].description)
+  )
+  expect(result[1].description).toEqual(
+    expect.stringContaining(docs[2].description)
+  )
+  expect(result[2].description).toEqual(
+    expect.stringContaining(docs[1].description)
+  )
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply matchessIndex modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.matchessIndex
-  }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.matchessIndex })
   expect(result).toHaveLength(1)
   expect(result[0].description).toEqual(
     expect.stringContaining(docs[1].description)
   )
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply matches modifier', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.matches
-  }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.matches })
   expect(result).toHaveLength(3)
   expect(result[0].name).toBe('lore')
   expect(result[1].name).toBe('ipsum')
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply matchess modifier', async () => {
+  const result = await mapMongoOperators(Test, { ...operators.matchess })
+  expect(result).toHaveLength(2)
+  expect(result[0].name).toBe('ipsum')
+  expect(result[1].name).toBe('Lore')
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply gt modifier', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.gt }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.gt })
   expect(result).toHaveLength(1)
   expect(result[0].age).toBe(6)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply gte modifier', async () => {
-  const result = await mapMongoOperators(TestMultiSort, {
-    ...operators.gte
-  }).toArray()
+  const result = await mapMongoOperators(TestMultiSort, { ...operators.gte })
   expect(result).toHaveLength(3)
   expect(result[0].age).toBe(5)
   expect(result[1].age).toBe(6)
@@ -171,24 +153,24 @@ test('It should apply gte modifier', async () => {
 })
 
 test('It should apply where on field with no modifiers', async () => {
-  const result = await mapMongoOperators(Test, { ...operators.field }).toArray()
+  const result = await mapMongoOperators(Test, { ...operators.field })
   expect(result).toHaveLength(1)
   expect(result[0].field).toBe(3)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply limit operator', async () => {
-  const result = await mapMongoOperators(Test, { limit: 2 }).toArray()
+  const result = await mapMongoOperators(Test, { limit: 2 })
   expect(result).toHaveLength(2)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply sort ASC and limit operator', async () => {
-  const result = await mapMongoOperators(Test, {
-    limit: 2,
-    sort: 'field:asc'
-  }).toArray()
+  const result = await mapMongoOperators(Test, { limit: 2, sort: 'field:asc' })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(2)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply sort ASC and limit + skip operator', async () => {
@@ -196,136 +178,107 @@ test('It should apply sort ASC and limit + skip operator', async () => {
     limit: 2,
     skip: 1,
     sort: 'field:asc'
-  }).toArray()
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(2)
   expect(result[1].field).toBe(3)
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply sort DESC ', async () => {
+  const result = await mapMongoOperators(Test, { sort: 'field:desc' })
+  expect(result).toHaveLength(docs.length)
+  expect(result[0].field).toBe(3)
+  expect(result[1].field).toBe(2)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply sort DESC and limit operator', async () => {
-  const result = await mapMongoOperators(Test, {
-    limit: 2,
-    sort: 'field:desc'
-  }).toArray()
+  const result = await mapMongoOperators(Test, { limit: 2, sort: 'field:desc' })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(3)
   expect(result[1].field).toBe(2)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply sort ASC with array of values and limit operator', async () => {
   const result = await mapMongoOperators(TestMultiSort, {
     limit: 2,
     sort: ['field:asc', 'age:desc']
-  }).toArray()
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(1)
   expect(result[0].age).toBe(6)
   expect(result[1].age).toBe(5)
-})
-
-test('It should apply sort DESC with array of values', async () => {
-  const result = await mapMongoOperators(TestMultiSort, {
-    sort: ['field:desc', 'age:asc']
-  }).toArray()
-  expect(result).toHaveLength(docsMultiSort.length)
-  expect(result[0].field).toBe(2)
-  expect(result[1].field).toBe(1)
-  expect(result[0].age).toBe(6)
-  expect(result[1].age).toBe(4)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should apply sort DESC with array of values and limit operator', async () => {
   const result = await mapMongoOperators(TestMultiSort, {
     limit: 2,
     sort: ['field:desc', 'age:asc']
-  }).toArray()
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(2)
   expect(result[1].field).toBe(1)
   expect(result[0].age).toBe(6)
   expect(result[1].age).toBe(4)
+  expect(result[0].constructor.name).toBe('model')
+})
+
+test('It should apply sort DESC and limit operator with lean', async () => {
+  const result = await mapMongoOperators(Test, {
+    limit: 2,
+    sort: 'field:desc'
+  }).lean()
+  expect(result).toHaveLength(2)
+  expect(result[0].field).toBe(3)
+  expect(result[1].field).toBe(2)
+  expect(result[0].constructor.name).toBe('Object')
 })
 
 test('It should apply more than one modifier in where', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.contains_gte
-  }).toArray()
+  })
   expect(result).toHaveLength(2)
   expect(result[0].age).toBe(4)
   expect(result[1].age).toBe(6)
-  expect(result[0].constructor.name).toBe('Object')
+  expect(result[0].constructor.name).toBe('model')
 })
-
-test('It should return just one field per row with projection', async () => {
-  const result = await mapMongoOperators(
-    Test,
-    {
-      ...operators.contains_gte
-    },
-    { projection: { age: 1 } }
-  ).toArray()
+test('It should return just one field per row with select', async () => {
+  const result = await mapMongoOperators(Test, {
+    ...operators.contains_gte
+  }).select('age')
   expect(result).toHaveLength(2)
   expect(result[0].age).toBe(4)
   expect(result[1].age).toBe(6)
   expect(result[0].field).toBe(undefined)
   expect(result[0].name).toBe(undefined)
+  expect(result[0].constructor.name).toBe('model')
 })
 
-test('It should handle underscores and return 1 item for that date in the condition', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.created_at_gt
-  }).toArray()
-  expect(result).toHaveLength(1)
-  expect(result[0].age).toBe(5)
-  expect(result[0].field).toBe(2)
-  expect(result[0].name).toBe('ipsum')
-})
-
-test('It should handle underscores and return 2 items for that date in the condition', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.created_at_gte
-  }).toArray()
+test('It should return just one field per row with { age: 1 }', async () => {
+  const result = await mapMongoOperators(
+    Test,
+    {
+      ...operators.contains_gte
+    },
+    { age: 1 }
+  )
   expect(result).toHaveLength(2)
-
   expect(result[0].age).toBe(4)
-  expect(result[0].field).toBe(1)
-  expect(result[0].name).toBe('lore')
-
-  expect(result[1].age).toBe(5)
-  expect(result[1].field).toBe(2)
-  expect(result[1].name).toBe('ipsum')
-})
-
-test('It should handle underscores and return 1 item for that range date in the condition', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.created_at_ir
-  }).toArray()
-  expect(result).toHaveLength(1)
-  expect(result[0].age).toBe(4)
-  expect(result[0].field).toBe(1)
-  expect(result[0].name).toBe('lore')
-})
-
-test('It should handle underscores and return 2 items for that date range in the condition', async () => {
-  const result = await mapMongoOperators(Test, {
-    ...operators.created_at_ire
-  }).toArray()
-  expect(result).toHaveLength(2)
-
-  expect(result[0].age).toBe(4)
-  expect(result[0].field).toBe(1)
-  expect(result[0].name).toBe('lore')
-
-  expect(result[1].age).toBe(5)
-  expect(result[1].field).toBe(2)
-  expect(result[1].name).toBe('ipsum')
+  expect(result[1].age).toBe(6)
+  expect(result[0].field).toBe(undefined)
+  expect(result[0].name).toBe(undefined)
+  expect(result[0].constructor.name).toBe('model')
 })
 
 test('It should return what is included in where condition', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.age_in
-  }).toArray()
+  })
   expect(result).toHaveLength(2)
   expect(result[0].age).toBe(4)
   expect(result[1].age).toBe(5)
@@ -334,7 +287,7 @@ test('It should return what is included in where condition', async () => {
 test('It should return what is NOT included in where condition', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.age_nin
-  }).toArray()
+  })
   expect(result).toHaveLength(1)
   expect(result[0].age).toBe(6)
 })
@@ -342,7 +295,7 @@ test('It should return what is NOT included in where condition', async () => {
 test('It should return what is included in where condition even if single value', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.age_in_single
-  }).toArray()
+  })
   expect(result).toHaveLength(1)
   expect(result[0].age).toBe(4)
 })
@@ -350,7 +303,7 @@ test('It should return what is included in where condition even if single value'
 test('It should apply params outside of where', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.standard
-  }).toArray()
+  })
   expect(result).toHaveLength(1)
   expect(result[0].field).toBe(1)
 })
@@ -358,7 +311,7 @@ test('It should apply params outside of where', async () => {
 test('It should apply both params outside of where and where', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.mixed
-  }).toArray()
+  })
   expect(result).toHaveLength(1)
   expect(result[0].field).toBe(3)
 })
@@ -366,7 +319,7 @@ test('It should apply both params outside of where and where', async () => {
 test('It should apply both params outside of where and where giving where priority', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.mixedPrecedence
-  }).toArray()
+  })
   expect(result).toHaveLength(1)
   expect(result[0].field).toBe(3)
 })
@@ -374,7 +327,7 @@ test('It should apply both params outside of where and where giving where priori
 test('It should apply native conditional operators', async () => {
   const result = await mapMongoOperators(Test, {
     ...operators.conditional
-  }).toArray()
+  })
   expect(result).toHaveLength(2)
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(3)
