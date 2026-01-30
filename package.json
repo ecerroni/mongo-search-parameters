@@ -3,21 +3,21 @@
   "version": "0.2.2",
   "description": "Easy find() search parameters",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "/build"
   ],
   "scripts": {
-    "build": "babel src -d build --ignore /*.test.js",
+    "build": "tsc",
     "test": "jest",
     "prepare": "npm run build",
     "test:clear-cache": "jest --clearCache",
-    "lint": "eslint .",
-    "clean": "rimraf dist",
-    "lint-fix": "eslint --fix .",
+    "lint": "tsc --noEmit",
+    "clean": "rimraf build",
     "prebuild": "npm run clean",
     "prepublishOnly": "npm run prepare",
     "preversion": "npm run prettify && npm run lint && npm test && npm run prepare",
-    "prettify": "prettier --write **/*.js",
+    "prettify": "prettier --write \"src/**/*.{ts,js}\" \"__tests__/**/*.{ts,js}\"",
     "version": "standard-changelog && git add CHANGELOG.md",
     "postpublish": "git push https://github.com/ecerroni/mongo-search-parameters.git master --follow-tags"
   },
@@ -36,27 +36,24 @@
     "search parameters"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-proposal-class-properties": "^7.4.4",
-    "@babel/plugin-transform-regenerator": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^24.7.1",
-    "babel-preset-latest-node": "^3.2.1",
+    "@types/jest": "^29.5.14",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^22.10.7",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^3.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-prettier": "^3.0.0",
     "husky": "^1.1.2",
-    "jest": "^24.8.0",
+    "jest": "^29.7.0",
     "lint-staged": "^7.3.0",
     "mongodb-memory-server-core": "^5.2.3",
     "mongoose": "^5.7.1",
     "prettier": "^1.18.2",
+    "rimraf": "^6.0.1",
     "standard-changelog": "^2.0.1",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3",
     "waait": "^1.0.4"
   },
   "husky": {
@@ -65,8 +62,8 @@
     }
   },
   "lint-staged": {
-    "*.js": [
-      "eslint --fix",
+    "*.{ts,js}": [
+      "prettier --write",
       "git add"
     ]
   }
