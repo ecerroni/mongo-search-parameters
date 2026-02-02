@@ -28,32 +28,32 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
   lt: ({ key, value }) => ({ [key]: { $lt: getSafeValue(value) } }),
   lte: ({ key, value }) => ({ [key]: { $lte: getSafeValue(value) } }),
   ir: ({ key, value }) => ({
-    [key]: { $gt: getSafeValue(value[0]), $lt: getSafeValue(value[1]) }
+    [key]: { $gt: getSafeValue(value[0]), $lt: getSafeValue(value[1]) },
   }),
   ire: ({ key, value }) => ({
-    [key]: { $gte: getSafeValue(value[0]), $lte: getSafeValue(value[1]) }
+    [key]: { $gte: getSafeValue(value[0]), $lte: getSafeValue(value[1]) },
   }),
   contains: ({ key, value }) => {
     const params = {
       [key]: {
         $regex: `${value.trim().replace(/\s\s+/g, ' ')}`,
-        $options: 'i'
-      }
+        $options: 'i',
+      },
     }
     return params
   },
   containss: ({ key, value }) => {
     const params = {
       [key]: {
-        $regex: `${value.trim().replace(/\s\s+/g, ' ')}`
-      }
+        $regex: `${value.trim().replace(/\s\s+/g, ' ')}`,
+      },
     }
     return params
   },
   in: ({ key, value }) => {
     if (Array.isArray(value)) {
       return {
-        [key]: { $in: [...value.map((v: any) => getSafeValue(v))] }
+        [key]: { $in: [...value.map((v: any) => getSafeValue(v))] },
       }
     }
     return { [key]: { $in: [getSafeValue(value)] } }
@@ -70,16 +70,16 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
       $and: [
         {
           $text: {
-            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
-          }
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`,
+          },
         },
         {
           [key]: {
             $regex: `${value.trim().replace(/\s\s+/g, ' ')}`,
-            $options: 'i'
-          }
-        }
-      ]
+            $options: 'i',
+          },
+        },
+      ],
     }
     return params
   },
@@ -88,15 +88,15 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
       $and: [
         {
           $text: {
-            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
-          }
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`,
+          },
         },
         {
           [key]: {
-            $regex: `${value.trim().replace(/\s\s+/g, ' ')}`
-          }
-        }
-      ]
+            $regex: `${value.trim().replace(/\s\s+/g, ' ')}`,
+          },
+        },
+      ],
     }
     return params
   },
@@ -109,8 +109,8 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
           .split(' ')
           .map((p: string) => `\\b${p}`)
           .join('|')}`,
-        $options: 'i'
-      }
+        $options: 'i',
+      },
     }
     return params
   },
@@ -122,8 +122,8 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
           .replace(/\s\s+/g, ' ')
           .split(' ')
           .map((p: string) => `\\b${p}`)
-          .join('|')}`
-      }
+          .join('|')}`,
+      },
     }
     return params
   },
@@ -132,8 +132,8 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
       $and: [
         {
           $text: {
-            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
-          }
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`,
+          },
         },
         {
           [key]: {
@@ -143,10 +143,10 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
               .split(' ')
               .map((p: string) => `\\b${p}`)
               .join('|')}`,
-            $options: 'i'
-          }
-        }
-      ]
+            $options: 'i',
+          },
+        },
+      ],
     }
     return params
   },
@@ -155,8 +155,8 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
       $and: [
         {
           $text: {
-            $search: `${value.trim().replace(/\s\s+/g, ' ')}`
-          }
+            $search: `${value.trim().replace(/\s\s+/g, ' ')}`,
+          },
         },
         {
           [key]: {
@@ -165,29 +165,54 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
               .replace(/\s\s+/g, ' ')
               .split(' ')
               .map((p: string) => `\\b${p}`)
-              .join('|')}`
-          }
-        }
-      ]
+              .join('|')}`,
+          },
+        },
+      ],
     }
     return params
-  }
+  },
 }
 
 const filterOperatorsValues = Object.keys(filterOperators)
 
-interface Args {
+type FilterOperators =
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'ir'
+  | 'ire'
+  | 'contains'
+  | 'containss'
+  | 'in'
+  | 'nin'
+  | 'containsIndex'
+  | 'containssIndex'
+  | 'matches'
+  | 'matchess'
+  | 'matchesIndex'
+  | 'matchessIndex'
+  | 'ne'
+
+type SearchParameters<T> = {
+  [K in keyof T]?: T[K]
+} & {
+  [K in keyof T as `${string & K}_${FilterOperators}`]?: any
+}
+
+interface Args<T = any> {
   sort?: string | string[]
   limit?: number
   skip?: number
-  where?: any
+  where?: SearchParameters<T>
   [key: string]: any
 }
 
 export default <T extends Document>(
   Collection: any,
-  args: Args,
-  projections?: any
+  args: Args<T>,
+  projections?: any,
 ) => {
   const isMongoose = typeof Collection === 'function' && Collection.schema
   const { sort, limit, skip, where = {}, ...rest } = args || {}
@@ -197,42 +222,45 @@ export default <T extends Document>(
     typeof where === 'object' &&
     !Array.isArray(where) &&
     where !== null
-      ? Object.keys(where).reduce((obj, key) => {
-          const value = where[key]
-          let withOperator = key.split('_')
-          if (withOperator.length > 2) {
-            // there are multiple underscores
-            withOperator = [
-              // get everything including underscores up to filter operator
-              key.replace(`_${withOperator[withOperator.length - 1]}`, ''),
-              // actual filter operator
-              withOperator[withOperator.length - 1]
-            ]
-          }
-          if (withOperator[1] === 'id' && withOperator[2]) {
-            withOperator = ['_id', withOperator[2]]
-          }
-          if (
-            withOperator[1] &&
-            filterOperatorsValues.includes(withOperator[1])
-          ) {
-            enhancedParams = {
-              ...enhancedParams,
-              ...filterOperators[withOperator[1]]({
-                key: withOperator[0],
-                value
-              })
+      ? Object.keys(where).reduce(
+          (obj, key) => {
+            const value = (where as any)[key]
+            let withOperator = key.split('_')
+            if (withOperator.length > 2) {
+              // there are multiple underscores
+              withOperator = [
+                // get everything including underscores up to filter operator
+                key.replace(`_${withOperator[withOperator.length - 1]}`, ''),
+                // actual filter operator
+                withOperator[withOperator.length - 1],
+              ]
             }
-            return { ...obj }
-          }
-          if (
-            withOperator[1] &&
-            !filterOperatorsValues.includes(withOperator[1])
-          ) {
-            return { ...obj, [key]: where[key] }
-          }
-          return { ...obj, [key]: where[key] }
-        }, {})
+            if (withOperator[1] === 'id' && withOperator[2]) {
+              withOperator = ['_id', withOperator[2]]
+            }
+            if (
+              withOperator[1] &&
+              filterOperatorsValues.includes(withOperator[1])
+            ) {
+              enhancedParams = {
+                ...enhancedParams,
+                ...filterOperators[withOperator[1]]({
+                  key: withOperator[0],
+                  value,
+                }),
+              }
+              return { ...obj }
+            }
+            if (
+              withOperator[1] &&
+              !filterOperatorsValues.includes(withOperator[1])
+            ) {
+              return { ...obj, [key]: (where as any)[key] }
+            }
+            return { ...obj, [key]: (where as any)[key] }
+          },
+          {} as Record<string, any>,
+        )
       : {}
   params = { ...rest, ...params }
   // Sanitize input discarding all params that have no corresponding field in the schema [Only for mongoose]!
@@ -251,9 +279,9 @@ export default <T extends Document>(
       ? sort.reduce(
           (o, i) => ({
             ...o,
-            [i.split(':')[0]]: i.split(':')[1] === 'asc' ? 1 : -1
+            [i.split(':')[0]]: i.split(':')[1] === 'asc' ? 1 : -1,
           }),
-          {}
+          {} as Record<string, any>,
         )
       : { [sort.split(':')[0]]: sort.split(':')[1] === 'asc' ? 1 : -1 }
 
@@ -274,7 +302,7 @@ export default <T extends Document>(
         .limit(limit)
     }
     return Collection.find({ ...params, ...enhancedParams }, projections).sort({
-      ...sorting
+      ...sorting,
     })
   }
 
@@ -285,13 +313,13 @@ export default <T extends Document>(
         .limit(limit)
     }
     return Collection.find({ ...params, ...enhancedParams }, projections).skip(
-      skip
+      skip,
     )
   }
 
   if (limit && limit > -1) {
     return Collection.find({ ...params, ...enhancedParams }, projections).limit(
-      limit
+      limit,
     )
   }
   return Collection.find({ ...params, ...enhancedParams }, projections)

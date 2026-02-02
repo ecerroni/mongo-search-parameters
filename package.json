@@ -52,7 +52,7 @@
     "lint-staged": "^7.3.0",
     "mongodb-memory-server-core": "^5.2.3",
     "mongoose": "^5.7.1",
-    "prettier": "^1.18.2",
+    "prettier": "^3.8.1",
     "rimraf": "^6.0.1",
     "standard-changelog": "^2.0.1",
     "ts-jest": "^29.2.5",
