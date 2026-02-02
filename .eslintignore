@@ -1,6 +1,4 @@
-coverage
-dist
-build
-lib
-__tests__
-node_modules
+build/
+node_modules/
+dist/
+coverage/

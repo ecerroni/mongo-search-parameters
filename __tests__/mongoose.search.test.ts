@@ -16,16 +16,13 @@ interface TestDoc extends Document {
 }
 
 beforeAll(async () => {
-  mongoServer = new MongoMemoryServer({
+  mongoServer = await MongoMemoryServer.create({
     binary: {
-      version: '4.0.3',
-      downloadDir: './__tests__/mongo-bin',
+      version: '7.0.8',
     },
   })
-  const mongoUri = await mongoServer.getConnectionString()
-  await mongoose.connect(mongoUri, {}, (err: any) => {
-    if (err) console.error(err)
-  })
+  const mongoUri = mongoServer.getUri()
+  await mongoose.connect(mongoUri)
   Test = await mongoose.model(
     'Test',
     new mongoose.Schema({
