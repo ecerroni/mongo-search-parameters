@@ -19,7 +19,7 @@
     "lint:fix": "eslint . --fix",
     "clean": "rimraf build",
     "prebuild": "npm run clean",
-    "prepublishOnly": "npm run prepare",
+    "prepublishOnly": "npm run build",
     "preversion": "npm run prettify && npm run lint && npm test && npm run prepare",
     "prettify": "prettier --write \"src/**/*.{ts,js}\" \"__tests__/**/*.{ts,js}\"",
     "version": "standard-changelog && git add CHANGELOG.md",
