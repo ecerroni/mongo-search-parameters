@@ -176,7 +176,7 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
 
 const filterOperatorsValues = Object.keys(filterOperators)
 
-type FilterOperators =
+export type FilterOperators =
   | 'gt'
   | 'gte'
   | 'lt'
@@ -195,7 +195,7 @@ type FilterOperators =
   | 'matchessIndex'
   | 'ne'
 
-type SearchParameters<T> = {
+export type SearchParameters<T> = {
   [K in keyof T]?: T[K]
 } & {
   [K in keyof T as `${string & K}_${FilterOperators}`]?: any
