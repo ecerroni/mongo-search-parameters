@@ -2,7 +2,7 @@
 
 # Mongo Search parameters
 
-Utility function that maps a JSON object to mongoose operators, works with node 10.
+Utility function that maps a JSON object to mongoose operators. Works with Node.js 18+ and Mongoose 8+.
 
 This is useful for forwarding graphql request params to either the mongoose model or the mongodb collection. Similar to how Prisma and Strapi work.
 

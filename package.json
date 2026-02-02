@@ -39,6 +39,12 @@
     "queries",
     "search parameters"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "mongoose": "^8.0.0"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/mongoose": "^5.11.97",
