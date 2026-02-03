@@ -16,8 +16,8 @@ const result =
   {
     where: {
       title_contains: 'lore',
-      age_gt: 18
-    }
+      age_gt: 18,
+    },
   })
 res.send(result)
 ```
@@ -49,14 +49,16 @@ const { User } = mongoModels
 
 // where (object): Define the operators to apply in the query.
 // You can pass the Interface of your model to get auto-completion
+// You can also use the MongoSearchOptions type for better type safety: parameters
+// import { MongoSearchOptions } from 'mongo-search-parameters'
 const params = {
   // all fields are optional
   where: {
     name_contains: 'Test',
-    age_gt: 21
+    age_gt: 21,
   },
   sort: 'name:desc', // it does accept also an array like ['name:desc', 'age:asc']
-  limit: 10
+  limit: 10,
 }
 // the above query will find all users which names contain (case insensitive) 'Test' and age is greater than 21, sort them by name from Z to A, limit them to just 10 rows if more are returned
 

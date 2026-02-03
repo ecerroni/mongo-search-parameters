@@ -1,4 +1,4 @@
-import { FilterOperators, SearchParameters } from '../src'
+import { FilterOperators, SearchParameters, MongoSearchOptions } from '../src'
 
 describe('Types Export', () => {
   it('should allow usage of FilterOperators type', () => {
@@ -19,5 +19,22 @@ describe('Types Export', () => {
 
     expect(params.name).toBe('John')
     expect(params.age_gt).toBe(20)
+  })
+
+  it('should allow usage of MongoSearchOptions type', () => {
+    interface MyDoc {
+      name: string
+    }
+
+    const options: MongoSearchOptions<MyDoc> = {
+      where: {
+        name_contains: 'test',
+      },
+      limit: 10,
+      sort: 'name:asc',
+    }
+
+    expect(options.limit).toBe(10)
+    expect(options.where?.name_contains).toBe('test')
   })
 })

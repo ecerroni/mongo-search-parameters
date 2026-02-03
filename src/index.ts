@@ -201,7 +201,7 @@ export type SearchParameters<T> = {
   [K in keyof T as `${string & K}_${FilterOperators}`]?: any
 }
 
-interface Args<T = any> {
+export interface MongoSearchOptions<T = any> {
   sort?: string | string[]
   limit?: number
   skip?: number
@@ -211,7 +211,7 @@ interface Args<T = any> {
 
 export default <T extends Document>(
   Collection: any,
-  args: Args<T>,
+  args: MongoSearchOptions<T>,
   projections?: any,
 ) => {
   const isMongoose = typeof Collection === 'function' && Collection.schema
