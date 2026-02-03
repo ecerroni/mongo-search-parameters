@@ -25,13 +25,13 @@ res.send(result)
 ## Install
 
 ```
-npm i mongo-search-parameters
+npm i @ecerroni/mongo-search-parameters
 ```
 
 OR
 
 ```
-yarn add mongo-search-parameters
+yarn add @ecerroni/mongo-search-parameters
 ```
 
 ## Demo
