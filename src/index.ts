@@ -172,6 +172,7 @@ const filterOperators: Record<string, (args: FilterOperatorArgs) => any> = {
     }
     return params
   },
+  ne: ({ key, value }) => ({ [key]: { $ne: getSafeValue(value) } }),
 }
 
 const filterOperatorsValues = Object.keys(filterOperators)
@@ -208,6 +209,7 @@ export interface MongoSearchOptions<T = any> {
   limit?: number
   skip?: number
   where?: SearchParameters<T>
+  OR?: SearchParameters<T>[]
   [key: string]: any
 }
 
@@ -248,13 +250,28 @@ const buildMongoQuery = (where: any): Record<string, any> => {
               withOperator[1] &&
               filterOperatorsValues.includes(withOperator[1])
             ) {
-              enhancedParams = {
-                ...enhancedParams,
-                ...filterOperators[withOperator[1]]({
-                  key: withOperator[0],
-                  value,
-                }),
-              }
+              const operatorResult = filterOperators[withOperator[1]]({
+                key: withOperator[0],
+                value,
+              })
+              // Merge operatorResult into enhancedParams
+              Object.keys(operatorResult).forEach((rk) => {
+                if (
+                  typeof operatorResult[rk] === 'object' &&
+                  operatorResult[rk] !== null &&
+                  !Array.isArray(operatorResult[rk]) &&
+                  enhancedParams[rk] &&
+                  typeof enhancedParams[rk] === 'object' &&
+                  !Array.isArray(enhancedParams[rk])
+                ) {
+                  enhancedParams[rk] = {
+                    ...enhancedParams[rk],
+                    ...operatorResult[rk],
+                  }
+                } else {
+                  enhancedParams[rk] = operatorResult[rk]
+                }
+              })
               return { ...obj }
             }
             if (
@@ -277,9 +294,12 @@ export default <T extends Document>(
   projections?: any,
 ) => {
   const isMongoose = typeof Collection === 'function' && Collection.schema
-  const { sort, limit, skip, where = {}, ...rest } = args || {}
+  const { sort, limit, skip, where = {}, OR, ...rest } = args || {}
 
   let params = { ...rest, ...buildMongoQuery(where) }
+  if (OR && Array.isArray(OR)) {
+    params = { ...params, $or: OR.map((o) => buildMongoQuery(o)) }
+  }
 
   // Sanitize input discarding all params that have no corresponding field in the schema [Only for mongoose]!
   const validFieldNames: string[] = isMongoose

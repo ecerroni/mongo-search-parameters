@@ -360,3 +360,61 @@ test('It should apply native conditional operators', async () => {
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(3)
 })
+
+test('It should apply OR operator', async () => {
+  const result = await mapMongoOperators<TestDoc>(Test, {
+    where: {
+      OR: [
+        {
+          name: 'lore',
+        },
+        {
+          age_gt: 5,
+        },
+      ],
+    },
+  })
+  expect(result).toHaveLength(2)
+  const names = result.map((r: any) => r.name)
+  expect(names).toContain('lore')
+  expect(result.some((r: any) => r.age === 6)).toBe(true)
+})
+
+test('It should apply OR operator if placed at root', async () => {
+  const result = await mapMongoOperators<TestDoc>(Test, {
+    OR: [
+      {
+        name: 'lore',
+      },
+      {
+        age_gt: 5,
+      },
+    ],
+  } as any)
+  expect(result).toHaveLength(2)
+  const names = result.map((r: any) => r.name)
+  expect(names).toContain('lore')
+  expect(result.some((r: any) => r.age === 6)).toBe(true)
+})
+
+test('It should apply multiple operators on same field (merging)', async () => {
+  const result = await mapMongoOperators<TestDoc>(Test, {
+    where: {
+      age_gt: 4,
+      age_lt: 6,
+    },
+  })
+  expect(result).toHaveLength(1)
+  expect(result[0].age).toBe(5)
+})
+
+test('It should apply ne operator', async () => {
+  const result = await mapMongoOperators<TestDoc>(Test, {
+    where: {
+      age_ne: 4,
+    },
+  })
+  expect(result).toHaveLength(2)
+  const ages = result.map((r: any) => r.age)
+  expect(ages).not.toContain(4)
+})
