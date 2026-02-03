@@ -199,6 +199,8 @@ export type SearchParameters<T> = {
   [K in keyof T]?: T[K]
 } & {
   [K in keyof T as `${string & K}_${FilterOperators}`]?: any
+} & {
+  OR?: SearchParameters<T>[]
 }
 
 export interface MongoSearchOptions<T = any> {
@@ -209,21 +211,25 @@ export interface MongoSearchOptions<T = any> {
   [key: string]: any
 }
 
-export default <T extends Document>(
-  Collection: any,
-  args: MongoSearchOptions<T>,
-  projections?: any,
-) => {
-  const isMongoose = typeof Collection === 'function' && Collection.schema
-  const { sort, limit, skip, where = {}, ...rest } = args || {}
+const buildMongoQuery = (where: any): Record<string, any> => {
   let enhancedParams: Record<string, any> = {}
-  let params: Record<string, any> =
+  const params: Record<string, any> =
     where !== '' &&
     typeof where === 'object' &&
     !Array.isArray(where) &&
     where !== null
       ? Object.keys(where).reduce(
           (obj, key) => {
+            if (key === 'OR' && Array.isArray((where as any)[key])) {
+              const orConditions = (where as any)[key]
+              enhancedParams = {
+                ...enhancedParams,
+                $or: orConditions.map((condition: any) =>
+                  buildMongoQuery(condition),
+                ),
+              }
+              return { ...obj }
+            }
             const value = (where as any)[key]
             let withOperator = key.split('_')
             if (withOperator.length > 2) {
@@ -262,7 +268,19 @@ export default <T extends Document>(
           {} as Record<string, any>,
         )
       : {}
-  params = { ...rest, ...params }
+  return { ...params, ...enhancedParams }
+}
+
+export default <T extends Document>(
+  Collection: any,
+  args: MongoSearchOptions<T>,
+  projections?: any,
+) => {
+  const isMongoose = typeof Collection === 'function' && Collection.schema
+  const { sort, limit, skip, where = {}, ...rest } = args || {}
+
+  let params = { ...rest, ...buildMongoQuery(where) }
+
   // Sanitize input discarding all params that have no corresponding field in the schema [Only for mongoose]!
   const validFieldNames: string[] = isMongoose
     ? Object.keys(Collection.schema.tree)
@@ -287,40 +305,36 @@ export default <T extends Document>(
 
     if (skip) {
       if (limit && limit > -1) {
-        return Collection.find({ ...params, ...enhancedParams }, projections)
+        return Collection.find({ ...params }, projections)
           .sort({ ...sorting })
           .skip(skip)
           .limit(limit)
       }
-      return Collection.find({ ...params, ...enhancedParams }, projections)
+      return Collection.find({ ...params }, projections)
         .sort({ ...sorting })
         .skip(skip)
     }
     if (limit && limit > -1) {
-      return Collection.find({ ...params, ...enhancedParams }, projections)
+      return Collection.find({ ...params }, projections)
         .sort({ ...sorting })
         .limit(limit)
     }
-    return Collection.find({ ...params, ...enhancedParams }, projections).sort({
+    return Collection.find({ ...params }, projections).sort({
       ...sorting,
     })
   }
 
   if (skip) {
     if (limit && limit > -1) {
-      return Collection.find({ ...params, ...enhancedParams }, projections)
+      return Collection.find({ ...params }, projections)
         .skip(skip)
         .limit(limit)
     }
-    return Collection.find({ ...params, ...enhancedParams }, projections).skip(
-      skip,
-    )
+    return Collection.find({ ...params }, projections).skip(skip)
   }
 
   if (limit && limit > -1) {
-    return Collection.find({ ...params, ...enhancedParams }, projections).limit(
-      limit,
-    )
+    return Collection.find({ ...params }, projections).limit(limit)
   }
-  return Collection.find({ ...params, ...enhancedParams }, projections)
+  return Collection.find({ ...params }, projections)
 }

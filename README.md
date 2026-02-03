@@ -96,6 +96,7 @@ For example for:
 - [x] limit
 - [x] start
 - [x] sort
+- [x] OR
 
 ### contains
 
@@ -165,10 +166,14 @@ For example for:
 
 `age_nin: [21]`: true if field is NOT contained in the array of values supplied
 
+### OR
+
+`OR: [{ name: 'Lore' }, { age_gt: 18 }]`: true if at least one condition is met.
+
 ## TODO
 
 - [x] Add mongodb client compatibility
 - [x] Add demo
 - [x] Refine search and explain different behaviors
 - [x] Allow to search using text indexes
-- [ ] Implement OR operator
+- [x] Implement OR operator

@@ -393,3 +393,21 @@ test('It should apply native conditional operators', async () => {
   expect(result[0].field).toBe(1)
   expect(result[1].field).toBe(3)
 })
+
+test('It should apply OR operator', async () => {
+  const result = await mapMongoOperators<TestDoc>(Test, {
+    where: {
+      OR: [
+        {
+          name: 'lore',
+        },
+        {
+          age_gt: 5,
+        },
+      ],
+    },
+  }).toArray()
+  expect(result).toHaveLength(2)
+  expect(result[0].name).toBe('lore')
+  expect(result[1].age).toBe(6)
+})
