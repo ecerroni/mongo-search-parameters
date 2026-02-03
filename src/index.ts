@@ -288,6 +288,31 @@ const buildMongoQuery = (where: any): Record<string, any> => {
   return { ...params, ...enhancedParams }
 }
 
+const sanitizeParams = (params: any, validFieldNames: string[] | null): any => {
+  return Object.keys(params).reduce((o, k) => {
+    if (k === '$or' && Array.isArray(params[k])) {
+      // Recursively sanitize objects inside $or
+      const cleanedOr = params[k]
+        .map((cond: any) => sanitizeParams(cond, validFieldNames))
+        .filter((cond: any) => Object.keys(cond).length > 0) // Remove empty objects
+
+      if (cleanedOr.length > 0) {
+        return { ...o, [k]: cleanedOr }
+      }
+      return { ...o }
+    }
+    if (
+      !validFieldNames ||
+      validFieldNames.includes(k) ||
+      (k && k.length && k[0] === '$')
+    ) {
+      // dollar operators must be included
+      return { ...o, [k]: params[k] }
+    }
+    return { ...o }
+  }, {})
+}
+
 export default <T extends Document>(
   Collection: any,
   args: MongoSearchOptions<T>,
@@ -296,22 +321,29 @@ export default <T extends Document>(
   const isMongoose = typeof Collection === 'function' && Collection.schema
   const { sort, limit, skip, where = {}, OR, ...rest } = args || {}
 
-  let params = { ...rest, ...buildMongoQuery(where) }
-  if (OR && Array.isArray(OR)) {
-    params = { ...params, $or: OR.map((o) => buildMongoQuery(o)) }
+  // Support where as array -> treating it as OR
+  let queryWhere = where
+  let queryOR = OR
+
+  if (Array.isArray(where)) {
+    if (!queryOR) queryOR = []
+    queryOR = [...queryOR, ...where]
+    queryWhere = {}
+  }
+
+  let params = { ...rest, ...buildMongoQuery(queryWhere) }
+  if (queryOR && Array.isArray(queryOR)) {
+    params = { ...params, $or: queryOR.map((o) => buildMongoQuery(o)) }
   }
 
   // Sanitize input discarding all params that have no corresponding field in the schema [Only for mongoose]!
-  const validFieldNames: string[] = isMongoose
+  const validFieldNames: string[] | null = isMongoose
     ? Object.keys(Collection.schema.tree)
-    : [...Object.keys(params)]
-  params = Object.keys(params).reduce((o, k) => {
-    if (validFieldNames.includes(k) || (k && k.length && k[0] === '$')) {
-      // dollar operators must be included
-      return { ...o, [k]: params[k] }
-    }
-    return { ...o }
-  }, {})
+    : null
+
+  // Apply recursive sanitization
+  params = sanitizeParams(params, validFieldNames)
+
   if (sort) {
     const sorting = Array.isArray(sort)
       ? sort.reduce(
